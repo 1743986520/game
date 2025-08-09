@@ -573,18 +573,6 @@ class OOXXGame {
     this.chat.chatBox.style.display = "none";
   }
   
-  // 更新聊天连接状态
-  updateChatConnectionStatus(text, status) {
-    this.chat.chatConnectionStatus.textContent = text;
-    this.chat.chatStatusIndicator.className = "status-indicator";
-    
-    if (status === "connecting") {
-      this.chat.chatStatusIndicator.classList.add("connecting");
-    } else if (status === "connected") {
-      this.chat.chatStatusIndicator.classList.add("connected");
-    }
-  }
-  
   // 发送消息
   sendMessage() {
     const message = this.chat.chatInput.value.trim();
@@ -659,13 +647,13 @@ class ChessGame {
 
     // 棋子類型
     this.pieces = {
-      king: { name: "帥", char: "帥" },
-      guard: { name: "仕", char: "仕" },
-      bishop: { name: "相", char: "相" },
-      knight: { name: "馬", char: "傌" },
-      rook: { name: "車", char: "俥" },
-      cannon: { name: "炮", char: "炮" },
-      pawn: { name: "兵", char: "兵" }
+      king: { name: "帥", char: "帥", value: 1000 },
+      guard: { name: "仕", char: "仕", value: 20 },
+      bishop: { name: "相", char: "相", value: 20 },
+      knight: { name: "馬", char: "傌", value: 40 },
+      rook: { name: "車", char: "俥", value: 90 },
+      cannon: { name: "炮", char: "炮", value: 45 },
+      pawn: { name: "兵", char: "兵", value: 10 }
     };
   }
 
@@ -792,6 +780,7 @@ class ChessGame {
         pieceEl.textContent = this.pieces[piece.type].char;
         pieceEl.dataset.row = row;
         pieceEl.dataset.col = col;
+        pieceEl.title = `${piece.player === "red" ? "红方" : "黑方"}${this.pieces[piece.type].name}`;
         cell.appendChild(pieceEl);
       }
       
@@ -799,6 +788,20 @@ class ChessGame {
       if (cell.querySelector('.palace-mark')) {
         const mark = cell.querySelector('.palace-mark').cloneNode(true);
         cell.appendChild(mark);
+      }
+      
+      // 添加横线
+      if (row < 9) {
+        const line = document.createElement('div');
+        line.className = 'horizontal-line';
+        cell.appendChild(line);
+      }
+      
+      // 添加竖线
+      if (col < 8) {
+        const line = document.createElement('div');
+        line.className = 'vertical-line';
+        cell.appendChild(line);
       }
     });
   }
@@ -866,8 +869,28 @@ class ChessGame {
   // 移動棋子
   movePiece(fromRow, fromCol, toRow, toCol) {
     // 檢查移動是否合法（這裡省略，只做簡單移動）
-    this.board[toRow][toCol] = this.board[fromRow][fromCol];
-    this.board[fromRow][fromCol] = null;
+    const targetPiece = this.board[toRow][toCol];
+    
+    // 檢查是否為自己的棋子
+    if (targetPiece && targetPiece.player === this.currentPlayer) {
+      // 點擊自己的棋子，切換選擇
+      this.selectedPiece = { row: toRow, col: toCol, piece: targetPiece };
+      this.clearSelection();
+      document.querySelector(`.chess-piece[data-row="${toRow}"][data-col="${toCol}"]`).classList.add("selected");
+      return;
+    }
+    
+    // 吃子邏輯
+    if (targetPiece && targetPiece.player !== this.currentPlayer) {
+      // 吃子
+      this.board[toRow][toCol] = this.board[fromRow][fromCol];
+      this.board[fromRow][fromCol] = null;
+    } else {
+      // 移動到空位
+      this.board[toRow][toCol] = this.board[fromRow][fromCol];
+      this.board[fromRow][fromCol] = null;
+    }
+    
     this.selectedPiece = null;
     this.clearSelection();
     
