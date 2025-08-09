@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>遊戲大廳</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    .game-lobby {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+    }
+    
+    .game-container {
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 30px;
+      background: linear-gradient(to right, #ff8a00, #da1b60);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .game-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .game-btn {
+      background: linear-gradient(45deg, #2196f3, #21cbf3);
+      color: white;
+      border: none;
+      padding: 20px 40px;
+      font-size: 1.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .game-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(33, 150, 243, 0.4);
+    }
+    
+    .game-btn.ooxx {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    }
+    
+    .game-btn.chess {
+      background: linear-gradient(45deg, #4CAF50, #8BC34A);
+    }
+  </style>
+</head>
+<body>
+  <div class="game-lobby">
+    <div class="game-container">
+      <h1>選擇遊戲</h1>
+      <div class="game-buttons">
+        <button class="game-btn ooxx" onclick="location.href='ooxx.html'">圈圈叉叉</button>
+        <button class="game-btn chess" onclick="location.href='chess.html'">象棋</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
