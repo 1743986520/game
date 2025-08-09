@@ -81,6 +81,13 @@
     </div>
   </div>
 
-  <script src="scripts/chess.js"></script>
+  <script src="scripts/game.js"></script>
+  <script>
+    // 初始化象棋游戏
+    document.addEventListener('DOMContentLoaded', () => {
+      window.currentGame = new ChessGame();
+      currentGame.init();
+    });
+  </script>
 </body>
 </html>
