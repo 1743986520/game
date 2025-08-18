@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太空射击 - GitHub Pages游戏</title>
+    <title>太空射击</title>
     <style>
         body {
             margin: 0;
@@ -78,20 +78,19 @@
     <canvas id="gameCanvas"></canvas>
     <div id="gameUI">
         <div>分数: <span id="score">0</span></div>
-        <div>生命: <span id="lives">3</span></div>
+        <div>生命: <span id="lives">5</span></div>
         <div>等级: <span id="level">1</span></div>
     </div>
     
     <div id="startScreen">
-        <h1>太空射击</h1>
-        <p>使用方向键移动，空格键射击</p>
+        <h1>轻松太空射击</h1>
+        <p>使用方向键移动，子弹会自动发射</p>
         <p>躲避陨石，消灭敌人！</p>
         <button id="startButton">开始游戏</button>
     </div>
     
     <div id="mobileControls">
         <div class="mobileBtn" id="leftBtn">←</div>
-        <div class="mobileBtn" id="shootBtn">⚡</div>
         <div class="mobileBtn" id="rightBtn">→</div>
     </div>
 
@@ -112,9 +111,10 @@
         // 游戏状态
         let gameRunning = false;
         let score = 0;
-        let lives = 3;
+        let lives = 5;  // 增加初始生命值
         let level = 1;
         let gameOver = false;
+        let lastShotTime = 0;
         
         // 玩家飞船
         const player = {
@@ -122,12 +122,11 @@
             y: canvas.height - 60,
             width: 40,
             height: 60,
-            speed: 8,
+            speed: 10,  // 增加移动速度
             color: '#3498db',
             isMovingLeft: false,
             isMovingRight: false,
-            lastShot: 0,
-            shootDelay: 300
+            shootDelay: 300  // 射击间隔
         };
         
         // 子弹数组
@@ -145,14 +144,13 @@
         // 按键状态
         const keys = {
             ArrowLeft: false,
-            ArrowRight: false,
-            Space: false
+            ArrowRight: false
         };
         
         // 初始化游戏
         function initGame() {
             score = 0;
-            lives = 3;
+            lives = 5;
             level = 1;
             gameOver = false;
             bullets = [];
@@ -181,6 +179,9 @@
             // 清除画布
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // 自动射击
+            autoShoot(timestamp);
+            
             // 更新游戏状态
             updatePlayer();
             updateBullets();
@@ -200,6 +201,14 @@
             
             // 继续循环
             requestAnimationFrame(gameLoop);
+        }
+        
+        // 自动射击
+        function autoShoot(timestamp) {
+            if (timestamp - lastShotTime > player.shootDelay) {
+                shoot();
+                lastShotTime = timestamp;
+            }
         }
         
         // 更新玩家位置
@@ -228,7 +237,7 @@
         function updateEnemies() {
             for (let i = enemies.length - 1; i >= 0; i--) {
                 enemies[i].y += enemies[i].speed;
-                enemies[i].x += Math.sin(enemies[i].y / 50) * 2; // 波浪移动
+                enemies[i].x += Math.sin(enemies[i].y / 50) * 1; // 减少波浪移动幅度
                 
                 // 移除超出屏幕的敌人
                 if (enemies[i].y > canvas.height) {
@@ -296,9 +305,9 @@
                 }
             }
             
-            // 玩家与敌人碰撞
+            // 玩家与敌人碰撞 (更宽松的碰撞检测)
             for (let i = enemies.length - 1; i >= 0; i--) {
-                if (checkCollision(player, enemies[i])) {
+                if (checkLooseCollision(player, enemies[i], 0.7)) {
                     // 创建爆炸效果
                     explosions.push({
                         x: enemies[i].x,
@@ -326,9 +335,9 @@
                 }
             }
             
-            // 玩家与陨石碰撞
+            // 玩家与陨石碰撞 (更宽松的碰撞检测)
             for (let i = meteors.length - 1; i >= 0; i--) {
-                if (checkCollision(player, meteors[i])) {
+                if (checkLooseCollision(player, meteors[i], 0.6)) {
                     // 创建爆炸效果
                     explosions.push({
                         x: meteors[i].x,
@@ -357,7 +366,7 @@
             }
         }
         
-        // 碰撞检测
+        // 标准碰撞检测
         function checkCollision(obj1, obj2) {
             return obj1.x < obj2.x + obj2.width &&
                    obj1.x + obj1.width > obj2.x &&
@@ -365,33 +374,46 @@
                    obj1.y + obj1.height > obj2.y;
         }
         
-        // 生成敌人
+        // 更宽松的碰撞检测
+        function checkLooseCollision(obj1, obj2, factor = 0.7) {
+            const width1 = obj1.width * factor;
+            const height1 = obj1.height * factor;
+            const width2 = obj2.width * factor;
+            const height2 = obj2.height * factor;
+            
+            return obj1.x < obj2.x + width2 &&
+                   obj1.x + width1 > obj2.x &&
+                   obj1.y < obj2.y + height2 &&
+                   obj1.y + height1 > obj2.y;
+        }
+        
+        // 生成敌人 (减少生成频率)
         function spawnEnemies() {
-            if (Math.random() < 0.02 * level) {
-                const size = 20 + Math.random() * 20;
+            if (Math.random() < 0.01 * level) {  // 减少生成概率
+                const size = 25 + Math.random() * 20;  // 减小敌人尺寸
                 enemies.push({
                     x: Math.random() * (canvas.width - size),
                     y: -size,
                     width: size,
                     height: size,
-                    speed: 1 + Math.random() * level * 0.5,
+                    speed: 0.5 + Math.random() * level * 0.3,  // 降低速度
                     color: `hsl(${Math.random() * 60 + 300}, 70%, 50%)`
                 });
             }
         }
         
-        // 生成陨石
+        // 生成陨石 (减少生成频率)
         function spawnMeteors() {
-            if (Math.random() < 0.01 * level) {
-                const size = 30 + Math.random() * 30;
+            if (Math.random() < 0.005 * level) {  // 减少生成概率
+                const size = 30 + Math.random() * 20;  // 减小陨石尺寸
                 meteors.push({
                     x: Math.random() * (canvas.width - size),
                     y: -size,
                     width: size,
                     height: size,
-                    speed: 2 + Math.random() * level * 0.3,
+                    speed: 1 + Math.random() * level * 0.2,  // 降低速度
                     rotation: 0,
-                    rotationSpeed: (Math.random() - 0.5) * 0.1,
+                    rotationSpeed: (Math.random() - 0.5) * 0.05,  // 降低旋转速度
                     color: `hsl(${Math.random() * 30 + 20}, 70%, 50%)`
                 });
             }
@@ -432,6 +454,14 @@
                 ctx.beginPath();
                 ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
                 ctx.fill();
+                
+                // 添加子弹尾迹
+                ctx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(bullet.x, bullet.y + 10);
+                ctx.lineTo(bullet.x, bullet.y + 20);
+                ctx.stroke();
             });
             ctx.restore();
         }
@@ -462,8 +492,8 @@
                 ctx.beginPath();
                 
                 // 绘制不规则形状
-                for (let i = 0; i < 8; i++) {
-                    const angle = (i / 8) * Math.PI * 2;
+                for (let i = 0; i < 6; i++) {  // 减少边数简化形状
+                    const angle = (i / 6) * Math.PI * 2;
                     const radius = meteor.width / 2 * (0.7 + Math.random() * 0.3);
                     const x = Math.cos(angle) * radius;
                     const y = Math.sin(angle) * radius;
@@ -503,17 +533,13 @@
         
         // 射击函数
         function shoot() {
-            const now = Date.now();
-            if (now - player.lastShot > player.shootDelay) {
-                bullets.push({
-                    x: player.x,
-                    y: player.y - player.height / 2,
-                    radius: 3,
-                    speed: 10,
-                    color: '#e74c3c'
-                });
-                player.lastShot = now;
-            }
+            bullets.push({
+                x: player.x,
+                y: player.y - player.height / 2,
+                radius: 4,  // 增大子弹尺寸
+                speed: 12,   // 增加子弹速度
+                color: '#e74c3c'
+            });
         }
         
         // 事件监听
@@ -524,9 +550,6 @@
             } else if (e.key === 'ArrowRight') {
                 player.isMovingRight = true;
                 keys.ArrowRight = true;
-            } else if (e.key === ' ' && !keys.Space) {
-                keys.Space = true;
-                shoot();
             }
         });
         
@@ -537,8 +560,6 @@
             } else if (e.key === 'ArrowRight') {
                 player.isMovingRight = false;
                 keys.ArrowRight = false;
-            } else if (e.key === ' ') {
-                keys.Space = false;
             }
         });
         
@@ -563,11 +584,6 @@
             player.isMovingRight = false;
         });
         
-        document.getElementById('shootBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            shoot();
-        });
-        
         // 窗口大小调整
         window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
@@ -578,13 +594,6 @@
         
         // 开始游戏按钮
         startButton.addEventListener('click', initGame);
-        
-        // 防止空格键滚动页面
-        window.addEventListener('keydown', (e) => {
-            if (e.key === ' ' && e.target === document.body) {
-                e.preventDefault();
-            }
-        });
     </script>
 </body>
 </html>
