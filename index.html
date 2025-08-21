@@ -190,21 +190,55 @@
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
         }
-        .firebaseui-container {
-            background: rgba(0, 0, 0, 0.7) !important;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3) !important;
-            border-radius: 10px !important;
-            border: 1px solid #00ff88 !important;
+        #loginPopup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .firebaseui-card-content {
-            padding: 20px !important;
+        #loginPopupContent {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #00ff88;
+            text-align: center;
+            max-width: 400px;
+            width: 80%;
         }
-        .firebaseui-title {
-            color: #00ff88 !important;
+        #loginPopup h2 {
+            color: #00ff88;
+            margin-top: 0;
         }
-        .firebaseui-button {
-            background-color: #4285F4 !important;
-            border-radius: 20px !important;
+        #loginPopup p {
+            color: white;
+            margin-bottom: 20px;
+        }
+        #loginPopup button {
+            margin: 10px;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        #confirmLogin {
+            background: linear-gradient(45deg, #4285F4, #34A853);
+            color: white;
+        }
+        #cancelLogin {
+            background: #555;
+            color: white;
+        }
+        #loginPopup button:hover {
+            transform: scale(1.05);
         }
         @media (max-width: 768px) and (orientation: portrait) {
             #mobileControls {
@@ -289,6 +323,15 @@
         </div>
     </div>
 
+    <div id="loginPopup">
+        <div id="loginPopupContent">
+            <h2>Google 登入</h2>
+            <p>即將開啟 Google 登入頁面，請允許瀏覽器彈出視窗</p>
+            <button id="confirmLogin">確認並繼續</button>
+            <button id="cancelLogin">取消</button>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -321,6 +364,9 @@
         const userAvatar = document.getElementById('userAvatar');
         const userName = document.getElementById('userName');
         const rankingList = document.getElementById('rankingList');
+        const loginPopup = document.getElementById('loginPopup');
+        const confirmLogin = document.getElementById('confirmLogin');
+        const cancelLogin = document.getElementById('cancelLogin');
         
         function setupCanvas() {
             const isPortrait = window.innerHeight > window.innerWidth;
@@ -723,14 +769,43 @@
             }
         }
 
+        function showLoginPopup() {
+            loginPopup.style.display = 'flex';
+        }
+
+        function hideLoginPopup() {
+            loginPopup.style.display = 'none';
+        }
+
         async function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                // 使用重定向而不是彈出視窗，避免被瀏覽器攔截
-                await auth.signInWithRedirect(provider);
+                // 先顯示提示訊息
+                showLoginPopup();
             } catch (error) {
                 console.error("登入錯誤:", error);
-                alert("登入失敗，請檢查瀏覽器是否允許彈出視窗");
+                alert("登入失敗，請檢查瀏覽器設置");
+            }
+        }
+
+        async function performGoogleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                // 使用彈出視窗方式
+                const result = await auth.signInWithPopup(provider);
+                console.log("登入成功", result.user);
+                hideLoginPopup();
+            } catch (error) {
+                console.error("登入錯誤:", error);
+                hideLoginPopup();
+                
+                // 如果彈出視窗失敗，嘗試重定向方式
+                try {
+                    await auth.signInWithRedirect(provider);
+                } catch (redirectError) {
+                    console.error("重定向登入也失敗:", redirectError);
+                    alert("登入失敗，請檢查瀏覽器是否允許彈出視窗");
+                }
             }
         }
 
@@ -798,7 +873,7 @@
         // 檢查重定向登入結果
         auth.getRedirectResult().then((result) => {
             if (result.user) {
-                console.log("登入成功", result.user);
+                console.log("重定向登入成功", result.user);
             }
         }).catch((error) => {
             console.error("重定向登入錯誤", error);
@@ -856,6 +931,8 @@
         loginButton.addEventListener('click', signInWithGoogle);
         logoutButton.addEventListener('click', signOut);
         saveScoreButton.addEventListener('click', saveScore);
+        confirmLogin.addEventListener('click', performGoogleLogin);
+        cancelLogin.addEventListener('click', hideLoginPopup);
 
         window.addEventListener('resize', () => {
             setupCanvas();
