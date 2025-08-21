@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>太空射擊</title>
+    <title>太空射擊beta1</title>
     <style>
         body {
             margin: 0;
@@ -240,6 +240,53 @@
         #loginPopup button:hover {
             transform: scale(1.05);
         }
+        #popupPermission {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        #popupPermissionContent {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #ff9900;
+            text-align: center;
+            max-width: 400px;
+            width: 80%;
+        }
+        #popupPermission h2 {
+            color: #ff9900;
+            margin-top: 0;
+        }
+        #popupPermission p {
+            color: white;
+            margin-bottom: 20px;
+        }
+        #popupPermission button {
+            margin: 10px;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        #retryLogin {
+            background: linear-gradient(45deg, #ff9900, #ff5500);
+            color: white;
+        }
+        #closePopupPermission {
+            background: #555;
+            color: white;
+        }
         @media (max-width: 768px) and (orientation: portrait) {
             #mobileControls {
                 display: flex;
@@ -332,6 +379,16 @@
         </div>
     </div>
 
+    <div id="popupPermission">
+        <div id="popupPermissionContent">
+            <h2>允許彈出視窗</h2>
+            <p>您的瀏覽器阻止了彈出視窗。請允許此網站顯示彈出視窗以進行Google登入。</p>
+            <p>您可以在瀏覽器地址欄中點擊彈出視窗圖標並選擇"總是允許"。</p>
+            <button id="retryLogin">重試登入</button>
+            <button id="closePopupPermission">關閉</button>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -367,6 +424,9 @@
         const loginPopup = document.getElementById('loginPopup');
         const confirmLogin = document.getElementById('confirmLogin');
         const cancelLogin = document.getElementById('cancelLogin');
+        const popupPermission = document.getElementById('popupPermission');
+        const retryLogin = document.getElementById('retryLogin');
+        const closePopupPermission = document.getElementById('closePopupPermission');
         
         function setupCanvas() {
             const isPortrait = window.innerHeight > window.innerWidth;
@@ -392,6 +452,7 @@
             bullet: new Image()
         };
 
+        // 使用原始图片路径
         images.player.src = '001.png';
         images.enemy.src = '002.png';
         images.meteor.src = '003.png';
@@ -407,6 +468,7 @@
         let totalImages = Object.keys(images).length;
         let currentUser = null;
         let userScoreSaved = false;
+        let popupBlocked = false;
 
         const player = {
             x: canvas.width / 2,
@@ -777,6 +839,14 @@
             loginPopup.style.display = 'none';
         }
 
+        function showPopupPermission() {
+            popupPermission.style.display = 'flex';
+        }
+
+        function hidePopupPermission() {
+            popupPermission.style.display = 'none';
+        }
+
         async function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
@@ -795,16 +865,23 @@
                 const result = await auth.signInWithPopup(provider);
                 console.log("登入成功", result.user);
                 hideLoginPopup();
+                hidePopupPermission();
             } catch (error) {
                 console.error("登入錯誤:", error);
                 hideLoginPopup();
                 
-                // 如果彈出視窗失敗，嘗試重定向方式
-                try {
-                    await auth.signInWithRedirect(provider);
-                } catch (redirectError) {
-                    console.error("重定向登入也失敗:", redirectError);
-                    alert("登入失敗，請檢查瀏覽器是否允許彈出視窗");
+                // 檢查是否為彈出視窗被阻止
+                if (error.code === 'auth/popup-blocked') {
+                    popupBlocked = true;
+                    showPopupPermission();
+                } else {
+                    // 如果彈出視窗失敗，嘗試重定向方式
+                    try {
+                        await auth.signInWithRedirect(provider);
+                    } catch (redirectError) {
+                        console.error("重定向登入也失敗:", redirectError);
+                        alert("登入失敗，請檢查瀏覽器是否允許彈出視窗");
+                    }
                 }
             }
         }
@@ -874,9 +951,13 @@
         auth.getRedirectResult().then((result) => {
             if (result.user) {
                 console.log("重定向登入成功", result.user);
+                hidePopupPermission();
             }
         }).catch((error) => {
             console.error("重定向登入錯誤", error);
+            if (error.code === 'auth/popup-blocked') {
+                showPopupPermission();
+            }
         });
 
         auth.onAuthStateChanged(user => {
@@ -933,6 +1014,8 @@
         saveScoreButton.addEventListener('click', saveScore);
         confirmLogin.addEventListener('click', performGoogleLogin);
         cancelLogin.addEventListener('click', hideLoginPopup);
+        retryLogin.addEventListener('click', performGoogleLogin);
+        closePopupPermission.addEventListener('click', hidePopupPermission);
 
         window.addEventListener('resize', () => {
             setupCanvas();
