@@ -190,6 +190,22 @@
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
         }
+        .firebaseui-container {
+            background: rgba(0, 0, 0, 0.7) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3) !important;
+            border-radius: 10px !important;
+            border: 1px solid #00ff88 !important;
+        }
+        .firebaseui-card-content {
+            padding: 20px !important;
+        }
+        .firebaseui-title {
+            color: #00ff88 !important;
+        }
+        .firebaseui-button {
+            background-color: #4285F4 !important;
+            border-radius: 20px !important;
+        }
         @media (max-width: 768px) and (orientation: portrait) {
             #mobileControls {
                 display: flex;
@@ -710,9 +726,11 @@
         async function signInWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                await auth.signInWithPopup(provider);
+                // 使用重定向而不是彈出視窗，避免被瀏覽器攔截
+                await auth.signInWithRedirect(provider);
             } catch (error) {
                 console.error("登入錯誤:", error);
+                alert("登入失敗，請檢查瀏覽器是否允許彈出視窗");
             }
         }
 
@@ -776,6 +794,15 @@
                 rankingList.innerHTML = "<li class='rank-item'>載入排行榜失敗</li>";
             }
         }
+
+        // 檢查重定向登入結果
+        auth.getRedirectResult().then((result) => {
+            if (result.user) {
+                console.log("登入成功", result.user);
+            }
+        }).catch((error) => {
+            console.error("重定向登入錯誤", error);
+        });
 
         auth.onAuthStateChanged(user => {
             if (user) {
