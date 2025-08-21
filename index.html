@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>太空射擊</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片版太空射击</title>
     <style>
         body {
             margin: 0;
@@ -12,38 +12,26 @@
             overflow: hidden;
             font-family: 'Arial', sans-serif;
             touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        #gameContainer {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
         #gameCanvas {
             display: block;
+            margin: 20px auto;
             background-color: #000;
             border: 2px solid #00ff88;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-            max-width: 100%;
-            max-height: 70vh;
         }
         #gameUI {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 20px;
+            left: 20px;
             color: #00ff88;
-            font-size: 16px;
+            font-size: 18px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             background: rgba(0, 0, 0, 0.6);
-            padding: 8px 15px;
+            padding: 10px 20px;
             border-radius: 10px;
             border: 1px solid #00ff88;
-            z-index: 10;
         }
         #startScreen {
             position: absolute;
@@ -58,9 +46,6 @@
             align-items: center;
             color: #00ff88;
             z-index: 100;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
         }
         #startButton {
             padding: 15px 40px;
@@ -82,10 +67,8 @@
             position: absolute;
             bottom: 30px;
             width: 100%;
-            justify-content: space-between;
-            padding: 0 10%;
-            box-sizing: border-box;
-            z-index: 50;
+            justify-content: space-around;
+            padding: 0 20%;
         }
         .mobileBtn {
             width: 70px;
@@ -100,236 +83,44 @@
             font-weight: bold;
             border: 2px solid #00ff88;
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
-            touch-action: manipulation;
-            user-select: none;
         }
         .stats {
             margin: 5px 0;
         }
-        #authContainer {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-        #userInfo {
-            display: none;
-            color: white;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 8px 15px;
-            border-radius: 10px;
-            border: 1px solid #00ff88;
-            margin-bottom: 10px;
-            text-align: right;
-            max-width: 200px;
-        }
-        #userName {
-            font-weight: bold;
-            margin-bottom: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        #loginButton, #logoutButton {
-            padding: 8px 16px;
-            background: linear-gradient(45deg, #00ff88, #00ccff);
-            color: #000;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        #logoutButton {
-            background: linear-gradient(45deg, #ff6b6b, #ff9e7d);
-            margin-top: 5px;
-        }
-        #leaderboard {
-            position: absolute;
-            top: 70px;
-            right: 10px;
-            color: #00ff88;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #00ff88;
-            z-index: 10;
-            width: 200px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        #leaderboard h3 {
-            margin: 0 0 10px 0;
-            text-align: center;
-            border-bottom: 1px solid #00ff88;
-            padding-bottom: 5px;
-        }
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        .leaderboard-name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 120px;
-        }
-        .leaderboard-score {
-            font-weight: bold;
-        }
-        #saveScoreButton {
-            padding: 10px 20px;
-            font-size: 18px;
-            background: linear-gradient(45deg, #00ff88, #00ccff);
-            color: #000;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-top: 15px;
-            font-weight: bold;
-            display: none;
-        }
-        @media (max-width: 768px) and (orientation: portrait) {
+        @media (max-width: 768px) {
             #mobileControls {
                 display: flex;
             }
             #gameCanvas {
+                margin: 10px auto;
                 width: 95%;
-                height: auto;
-            }
-            #gameUI {
-                font-size: 14px;
-                padding: 5px 10px;
-            }
-            #authContainer {
-                top: 5px;
-                right: 5px;
-            }
-            #leaderboard {
-                position: relative;
-                width: 90%;
-                margin-top: 20px;
-                top: unset;
-                right: unset;
-                max-height: 150px;
-            }
-        }
-        @media (max-width: 768px) and (orientation: landscape) {
-            #gameContainer {
-                flex-direction: row;
-            }
-            #gameCanvas {
-                width: 70%;
-                height: 90vh;
-            }
-            #mobileControls {
-                display: flex;
-                width: auto;
-                bottom: 10px;
-                right: 10px;
-                left: auto;
-                flex-direction: column;
-                padding: 0;
-                gap: 20px;
-            }
-            .mobileBtn {
-                width: 60px;
-                height: 60px;
-            }
-            #leaderboard {
-                top: 10px;
-                right: 10px;
-                width: 180px;
-                max-height: 200px;
             }
         }
     </style>
-    
-    <!-- 添加模块化 Firebase SDK -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyApk4WRpBWZafmrSxtfKBhWsk6naWJTElU",
-            authDomain: "game-7de43.firebaseapp.com",
-            projectId: "game-7de43",
-            storageBucket: "game-7de43.firebasestorage.app",
-            messagingSenderId: "457004379294",
-            appId: "1:457004379294:web:06bc1e7e248b3a1788df8f",
-            measurementId: "G-M23H6VPQPK"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-    </script>
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        <div id="gameUI">
-            <div class="stats">分數: <span id="score">0</span></div>
-            <div class="stats">生命: <span id="lives">5</span></div>
-            <div class="stats">等級: <span id="level">1</span></div>
-        </div>
-
-        <div id="authContainer">
-            <div id="userInfo">
-                <div id="userName"></div>
-                <div id="userEmail"></div>
-            </div>
-            <button id="loginButton">Google 登入</button>
-            <button id="logoutButton" style="display: none;">登出</button>
-        </div>
-
-        <div id="leaderboard">
-            <h3>🏆 排行榜</h3>
-            <div id="leaderboardList"></div>
-        </div>
-
-        <div id="startScreen">
-            <h1 style="font-size: 36px; margin-bottom: 20px;">🚀 太空射擊 🚀</h1>
-            <p style="font-size: 18px; margin: 10px;">使用方向鍵移動，子彈會自動發射</p>
-            <p style="font-size: 18px; margin: 10px;">敵人飛船可以破壞，隕石無法破壞</p>
-            <p style="font-size: 18px; margin: 10px;">所以躲避隕石，消滅敵人！</p>
-            <button id="startButton">開始遊戲</button>
-            <button id="saveScoreButton">儲存成績</button>
-        </div>
-
-        <div id="mobileControls">
-            <div class="mobileBtn" id="leftBtn">←</div>
-            <div class="mobileBtn" id="rightBtn">→</div>
-        </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameUI">
+        <div class="stats">分数: <span id="score">0</span></div>
+        <div class="stats">生命: <span id="lives">5</span></div>
+        <div class="stats">等级: <span id="level">1</span></div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <div id="startScreen">
+        <h1 style="font-size: 48px; margin-bottom: 20px;">🚀 太空射击 🚀</h1>
+        <p style="font-size: 20px; margin: 10px;">使用方向键移动，子弹会自动发射</p>
+        <p style="font-size: 20px; margin: 10px;">蓝色飞船是敌人，棕色石头是陨石</p>
+        <p style="font-size: 20px; margin: 10px;">躲避陨石，消灭敌人！</p>
+        <button id="startButton">开始游戏</button>
+    </div>
+
+    <div id="mobileControls">
+        <div class="mobileBtn" id="leftBtn">←</div>
+        <div class="mobileBtn" id="rightBtn">→</div>
+    </div>
+
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyApk4WRpBWZafmrSxtfKBhWsk6naWJTElU",
-            authDomain: "game-7de43.firebaseapp.com",
-            projectId: "game-7de43",
-            storageBucket: "game-7de43.firebasestorage.app",
-            messagingSenderId: "457004379294",
-            appId: "1:457004379294:web:06bc1e7e248b3a1788df8f",
-            measurementId: "G-M23H6VPQPK"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
+        // 游戏变量
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
@@ -337,42 +128,26 @@
         const levelElement = document.getElementById('level');
         const startScreen = document.getElementById('startScreen');
         const startButton = document.getElementById('startButton');
-        const saveScoreButton = document.getElementById('saveScoreButton');
-        const loginButton = document.getElementById('loginButton');
-        const logoutButton = document.getElementById('logoutButton');
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const userEmail = document.getElementById('userEmail');
-        const leaderboardList = document.getElementById('leaderboardList');
-        
-        function setupCanvas() {
-            const isPortrait = window.innerHeight > window.innerWidth;
-            if (isPortrait) {
-                canvas.width = Math.min(window.innerWidth * 0.95, 800);
-                canvas.height = Math.min(window.innerHeight * 0.7, 600);
-            } else {
-                canvas.width = Math.min(window.innerWidth * 0.7, 800);
-                canvas.height = Math.min(window.innerHeight * 0.9, 600);
-            }
-            if (player) {
-                player.x = canvas.width / 2;
-                player.y = canvas.height - 80;
-            }
-        }
-        
+
+        // 设置画布大小
+        canvas.width = 800;
+        canvas.height = 600;
+
+        // 图片资源
         const images = {
             player: new Image(),
             enemy: new Image(),
             meteor: new Image(),
             bullet: new Image()
         };
-        
-        // 使用内嵌SVG作为图片占位符
-        images.player.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTMwIDVMNDUgNDBWNTVIMzVWNTVIMjVWNTVIMTVWNDBaIiBmaWxsPSIjMDBmZmY4IiBzdHJva2U9IiMwMGE2NjYiIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9IjMwIiBjeT0iMjAiIHI9IjEwIiBmaWxsPSIjMDBmZmY4IiBzdHJva2U9IiMwMGE2NjYiIHN0cm9rZS13aWR0aD0iMiIvPjwvc3ZnPg==';
-        images.enemy.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBvbHlnb24gcG9pbnRzPSIyNSw1IDUsMzUgNDUsMzUiIGZpbGw9IiM0Nzg3ZGUiIHN0cm9rZT0iIzI0NDY4MCIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMjUiIGN5PSIyMCIgcj0iOCIgZmlsbD0iI2ZmNTc1NyIgc3Ryb2tlPSIjYzEzYzMwIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=';
-        images.meteor.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiM4YjVlNGIiIHN0cm9rZT0iIzVjM2QyZCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTEwIDEwQzE1IDE1IDIwIDIwIDMwIDMwIiBzdHJva2U9IiM1YzNkMmQiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0zNSAxNUMzMCAyMCAyNSAyNSAxNSAzNSIgc3Ryb2tlPSIjNWMzZDJkIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9Im5vbmUiLz48L3N2Zz4=';
-        images.bullet.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIyIiB5PSIwIiB3aWR0aD0iNCIgaGVpZ2h0PSIxNiIgZmlsbD0iI2U3NGMzYyIvPjxyZWN0IHg9IjAiIHk9IjQiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmNjMDAiLz48L3N2Zz4=';
-        
+
+        // 设置图片源（请确保这些图片文件在同一个目录下）
+        images.player.src = '001.png';    // 玩家飞船
+        images.enemy.src = '002.png';     // 敌人
+        images.meteor.src = '003.png';    // 陨石
+        images.bullet.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB4PSIyIiB5PSIwIiB3aWR0aD0iNCIgaGVpZ2h0PSIxNiIgZmlsbD0iI2U3NGMzYyIvPjxyZWN0IHg9IjAiIHk9IjQiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNmZmNjMDAiLz48L3N2Zz4='; // 子弹SVG
+
+        // 游戏状态
         let gameRunning = false;
         let score = 0;
         let lives = 5;
@@ -381,8 +156,8 @@
         let lastShotTime = 0;
         let imagesLoaded = 0;
         let totalImages = Object.keys(images).length;
-        let currentUser = null;
-        
+
+        // 玩家飞船
         const player = {
             x: canvas.width / 2,
             y: canvas.height - 80,
@@ -393,31 +168,35 @@
             isMovingRight: false,
             shootDelay: 200
         };
-        
+
+        // 游戏对象数组
         let bullets = [];
         let enemies = [];
         let meteors = [];
         let explosions = [];
-        
+
+        // 检查所有图片是否加载完成
         function checkAllImagesLoaded() {
             imagesLoaded++;
             if (imagesLoaded === totalImages) {
                 startButton.disabled = false;
-                startButton.textContent = "開始遊戲";
+                startButton.textContent = "开始游戏";
             }
         }
-        
+
+        // 设置图片加载回调
         Object.values(images).forEach(img => {
             img.onload = checkAllImagesLoaded;
             img.onerror = () => {
-                console.error('圖片加載失敗');
+                console.error('图片加载失败');
                 checkAllImagesLoaded();
             };
         });
-        
+
+        // 初始化游戏
         function initGame() {
             if (imagesLoaded < totalImages) return;
-            
+
             score = 0;
             lives = 5;
             level = 1;
@@ -426,27 +205,29 @@
             enemies = [];
             meteors = [];
             explosions = [];
-            
+
             scoreElement.textContent = score;
             livesElement.textContent = lives;
             levelElement.textContent = level;
-            
+
             player.x = canvas.width / 2;
             player.y = canvas.height - 80;
-            
+
             gameRunning = true;
             startScreen.style.display = 'none';
-            
+
             requestAnimationFrame(gameLoop);
         }
-        
+
+        // 游戏主循环
         function gameLoop(timestamp) {
             if (!gameRunning) return;
-            
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
+
+            // 绘制星空背景
             drawStars();
-            
+
             autoShoot(timestamp);
             updatePlayer();
             updateBullets();
@@ -456,20 +237,22 @@
             checkCollisions();
             spawnEnemies();
             spawnMeteors();
-            
+
             drawPlayer();
             drawBullets();
             drawEnemies();
             drawMeteors();
             drawExplosions();
-            
+
             requestAnimationFrame(gameLoop);
         }
-        
+
+        // 绘制星空背景
         function drawStars() {
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
+            // 简单的星空效果
             ctx.fillStyle = '#fff';
             for (let i = 0; i < 100; i++) {
                 const x = Math.random() * canvas.width;
@@ -478,14 +261,16 @@
                 ctx.fillRect(x, y, size, size);
             }
         }
-        
+
+        // 自动射击
         function autoShoot(timestamp) {
             if (timestamp - lastShotTime > player.shootDelay) {
                 shoot();
                 lastShotTime = timestamp;
             }
         }
-        
+
+        // 更新玩家位置
         function updatePlayer() {
             if (player.isMovingLeft && player.x > player.width / 2) {
                 player.x -= player.speed;
@@ -494,7 +279,8 @@
                 player.x += player.speed;
             }
         }
-        
+
+        // 更新子弹位置
         function updateBullets() {
             for (let i = bullets.length - 1; i >= 0; i--) {
                 bullets[i].y -= bullets[i].speed;
@@ -503,41 +289,46 @@
                 }
             }
         }
-        
+
+        // 更新敌人位置
         function updateEnemies() {
             for (let i = enemies.length - 1; i >= 0; i--) {
                 enemies[i].y += enemies[i].speed;
                 enemies[i].x += Math.sin(enemies[i].y / 50) * 1;
-                
+
                 if (enemies[i].y > canvas.height) {
                     enemies.splice(i, 1);
                 }
             }
         }
-        
+
+        // 更新陨石位置
         function updateMeteors() {
             for (let i = meteors.length - 1; i >= 0; i--) {
                 meteors[i].y += meteors[i].speed;
                 meteors[i].rotation += meteors[i].rotationSpeed;
-                
+
                 if (meteors[i].y > canvas.height) {
                     meteors.splice(i, 1);
                 }
             }
         }
-        
+
+        // 更新爆炸效果
         function updateExplosions() {
             for (let i = explosions.length - 1; i >= 0; i--) {
                 explosions[i].radius += 0.8;
                 explosions[i].alpha -= 0.03;
-                
+
                 if (explosions[i].alpha <= 0) {
                     explosions.splice(i, 1);
                 }
             }
         }
-        
+
+        // 检查碰撞
         function checkCollisions() {
+            // 子弹与敌人碰撞
             for (let i = bullets.length - 1; i >= 0; i--) {
                 for (let j = enemies.length - 1; j >= 0; j--) {
                     if (checkCollision(bullets[i], enemies[j])) {
@@ -547,13 +338,13 @@
                             radius: 15,
                             alpha: 1
                         });
-                        
+
                         score += 10 * level;
                         scoreElement.textContent = score;
-                        
+
                         bullets.splice(i, 1);
                         enemies.splice(j, 1);
-                        
+
                         if (score >= level * 100) {
                             level++;
                             levelElement.textContent = level;
@@ -562,7 +353,8 @@
                     }
                 }
             }
-            
+
+            // 玩家与敌人碰撞
             for (let i = enemies.length - 1; i >= 0; i--) {
                 if (checkLooseCollision(player, enemies[i], 0.6)) {
                     explosions.push({
@@ -571,17 +363,18 @@
                         radius: 25,
                         alpha: 1
                     });
-                    
+
                     lives--;
                     livesElement.textContent = lives;
                     enemies.splice(i, 1);
-                    
+
                     if (lives <= 0) {
                         endGame();
                     }
                 }
             }
-            
+
+            // 玩家与陨石碰撞
             for (let i = meteors.length - 1; i >= 0; i--) {
                 if (checkLooseCollision(player, meteors[i], 0.5)) {
                     explosions.push({
@@ -590,37 +383,39 @@
                         radius: 30,
                         alpha: 1
                     });
-                    
+
                     lives--;
                     livesElement.textContent = lives;
                     meteors.splice(i, 1);
-                    
+
                     if (lives <= 0) {
                         endGame();
                     }
                 }
             }
         }
-        
+
+        // 碰撞检测函数
         function checkCollision(obj1, obj2) {
             return obj1.x < obj2.x + obj2.width &&
                    obj1.x + obj1.width > obj2.x &&
                    obj1.y < obj2.y + obj2.height &&
                    obj1.y + obj1.height > obj2.y;
         }
-        
+
         function checkLooseCollision(obj1, obj2, factor = 0.7) {
             const width1 = obj1.width * factor;
             const height1 = obj1.height * factor;
             const width2 = obj2.width * factor;
             const height2 = obj2.height * factor;
-            
+
             return obj1.x < obj2.x + width2 &&
                    obj1.x + width1 > obj2.x &&
                    obj1.y < obj2.y + height2 &&
                    obj1.y + height1 > obj2.y;
         }
-        
+
+        // 生成敌人
         function spawnEnemies() {
             if (Math.random() < 0.008 * level) {
                 const size = 50 + Math.random() * 20;
@@ -633,7 +428,8 @@
                 });
             }
         }
-        
+
+        // 生成陨石
         function spawnMeteors() {
             if (Math.random() < 0.006 * level) {
                 const size = 40 + Math.random() * 30;
@@ -648,7 +444,8 @@
                 });
             }
         }
-        
+
+        // 绘制玩家
         function drawPlayer() {
             ctx.drawImage(
                 images.player,
@@ -658,7 +455,8 @@
                 player.height
             );
         }
-        
+
+        // 绘制子弹
         function drawBullets() {
             bullets.forEach(bullet => {
                 ctx.drawImage(
@@ -670,7 +468,8 @@
                 );
             });
         }
-        
+
+        // 绘制敌人
         function drawEnemies() {
             enemies.forEach(enemy => {
                 ctx.drawImage(
@@ -682,7 +481,8 @@
                 );
             });
         }
-        
+
+        // 绘制陨石
         function drawMeteors() {
             meteors.forEach(meteor => {
                 ctx.save();
@@ -698,7 +498,8 @@
                 ctx.restore();
             });
         }
-        
+
+        // 绘制爆炸效果
         function drawExplosions() {
             explosions.forEach(explosion => {
                 const gradient = ctx.createRadialGradient(
@@ -708,14 +509,15 @@
                 gradient.addColorStop(0, `rgba(255, 100, 0, ${explosion.alpha})`);
                 gradient.addColorStop(0.7, `rgba(255, 50, 0, ${explosion.alpha * 0.5})`);
                 gradient.addColorStop(1, `rgba(255, 0, 0, 0)`);
-                
+
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
                 ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
                 ctx.fill();
             });
         }
-        
+
+        // 射击函数
         function shoot() {
             bullets.push({
                 x: player.x,
@@ -725,170 +527,57 @@
                 speed: 12
             });
         }
-        
+
+        // 游戏结束
         function endGame() {
             gameOver = true;
             gameRunning = false;
             startScreen.style.display = 'flex';
-            document.querySelector('#startScreen h1').textContent = '遊戲結束';
-            document.querySelectorAll('#startScreen p')[0].textContent = `最終分數: ${score}`;
-            document.querySelectorAll('#startScreen p')[1].textContent = '使用方向鍵移動，子彈會自動發射';
-            document.querySelectorAll('#startScreen p')[2].textContent = '藍色飛船是敵人，棕色石頭是隕石';
+            document.querySelector('#startScreen h1').textContent = '游戏结束';
+            document.querySelectorAll('#startScreen p')[0].textContent = `最终分数: ${score}`;
+            document.querySelectorAll('#startScreen p')[1].textContent = '使用方向键移动，子弹会自动发射';
+            document.querySelectorAll('#startScreen p')[2].textContent = '蓝色飞船是敌人，棕色石头是陨石';
             startButton.textContent = '再玩一次';
-            
-            if (currentUser) {
-                saveScoreButton.style.display = 'block';
-            } else {
-                saveScoreButton.style.display = 'none';
-            }
         }
-        
-        function signInWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    currentUser = result.user;
-                    updateUI();
-                    loadLeaderboard();
-                })
-                .catch((error) => {
-                    console.error("登入錯誤:", error);
-                });
-        }
-        
-        function signOut() {
-            auth.signOut().then(() => {
-                currentUser = null;
-                updateUI();
-            }).catch((error) => {
-                console.error("登出錯誤:", error);
-            });
-        }
-        
-        function updateUI() {
-            if (currentUser) {
-                userName.textContent = currentUser.displayName;
-                userEmail.textContent = currentUser.email;
-                userInfo.style.display = 'block';
-                loginButton.style.display = 'none';
-                logoutButton.style.display = 'block';
-                
-                if (gameOver) {
-                    saveScoreButton.style.display = 'block';
-                }
-            } else {
-                userInfo.style.display = 'none';
-                loginButton.style.display = 'block';
-                logoutButton.style.display = 'none';
-                saveScoreButton.style.display = 'none';
-            }
-        }
-        
-        function saveScore() {
-            if (!currentUser) return;
-            
-            const userScore = {
-                uid: currentUser.uid,
-                name: currentUser.displayName,
-                score: score,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            db.collection('scores').add(userScore)
-                .then(() => {
-                    alert('分數已儲存！');
-                    saveScoreButton.style.display = 'none';
-                    loadLeaderboard();
-                })
-                .catch((error) => {
-                    console.error("儲存分數錯誤:", error);
-                    alert('儲存分數失敗，請再試一次');
-                });
-        }
-        
-        function loadLeaderboard() {
-            leaderboardList.innerHTML = '<div>載入中...</div>';
-            
-            db.collection('scores')
-                .orderBy('score', 'desc')
-                .limit(10)
-                .get()
-                .then((querySnapshot) => {
-                    leaderboardList.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        leaderboardList.innerHTML = '<div>尚無記錄</div>';
-                        return;
-                    }
-                    
-                    let rank = 1;
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        const item = document.createElement('div');
-                        item.className = 'leaderboard-item';
-                        item.innerHTML = `
-                            <span class="leaderboard-name">${rank}. ${data.name}</span>
-                            <span class="leaderboard-score">${data.score}</span>
-                        `;
-                        leaderboardList.appendChild(item);
-                        rank++;
-                    });
-                })
-                .catch((error) => {
-                    console.error("載入排行榜錯誤:", error);
-                    leaderboardList.innerHTML = '<div>載入失敗</div>';
-                });
-        }
-        
-        auth.onAuthStateChanged((user) => {
-            currentUser = user;
-            updateUI();
-            loadLeaderboard();
-        });
-        
+
+        // 事件监听
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') player.isMovingLeft = true;
             if (e.key === 'ArrowRight') player.isMovingRight = true;
         });
-        
+
         window.addEventListener('keyup', (e) => {
             if (e.key === 'ArrowLeft') player.isMovingLeft = false;
             if (e.key === 'ArrowRight') player.isMovingRight = false;
         });
-        
+
+        // 触摸控制
         document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             player.isMovingLeft = true;
         });
-        
+
         document.getElementById('leftBtn').addEventListener('touchend', (e) => {
             e.preventDefault();
             player.isMovingLeft = false;
         });
-        
+
         document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             player.isMovingRight = true;
         });
-        
+
         document.getElementById('rightBtn').addEventListener('touchend', (e) => {
             e.preventDefault();
             player.isMovingRight = false;
         });
-        
+
+        // 开始游戏按钮
         startButton.addEventListener('click', initGame);
-        loginButton.addEventListener('click', signInWithGoogle);
-        logoutButton.addEventListener('click', signOut);
-        saveScoreButton.addEventListener('click', saveScore);
-        
-        window.addEventListener('resize', () => {
-            setupCanvas();
-        });
-        
+
+        // 初始禁用按钮直到图片加载完成
         startButton.disabled = true;
-        startButton.textContent = "圖片加載中...";
-        
-        setupCanvas();
+        startButton.textContent = "图片加载中...";
     </script>
 </body>
 </html>
