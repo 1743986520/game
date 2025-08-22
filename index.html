@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>图片版太空射击</title>
     <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -12,26 +16,41 @@
             overflow: hidden;
             font-family: 'Arial', sans-serif;
             touch-action: manipulation;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            margin: 0 auto;
         }
         #gameCanvas {
             display: block;
-            margin: 20px auto;
+            width: 100%;
+            height: auto;
             background-color: #000;
             border: 2px solid #00ff88;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            touch-action: none;
         }
         #gameUI {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 10px;
+            left: 10px;
             color: #00ff88;
-            font-size: 18px;
+            font-size: 16px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             background: rgba(0, 0, 0, 0.6);
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 10px;
             border: 1px solid #00ff88;
+            z-index: 10;
         }
         #startScreen {
             position: absolute;
@@ -46,6 +65,8 @@
             align-items: center;
             color: #00ff88;
             z-index: 100;
+            text-align: center;
+            padding: 20px;
         }
         #startButton {
             padding: 15px 40px;
@@ -65,58 +86,128 @@
         #mobileControls {
             display: none;
             position: absolute;
-            bottom: 30px;
+            bottom: 20px;
             width: 100%;
-            justify-content: space-around;
-            padding: 0 20%;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 50;
+        }
+        .controlGroup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .mobileBtn {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             background: rgba(0, 255, 136, 0.3);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             border: 2px solid #00ff88;
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+            margin: 5px;
+            user-select: none;
+            touch-action: none;
+        }
+        .centerBtn {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 100, 0, 0.3);
+            border: 2px solid #ff6400;
         }
         .stats {
             margin: 5px 0;
+        }
+        #pauseBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff88;
+            border-radius: 50%;
+            color: #00ff88;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            z-index: 10;
         }
         @media (max-width: 768px) {
             #mobileControls {
                 display: flex;
             }
-            #gameCanvas {
-                margin: 10px auto;
-                width: 95%;
+            #gameUI {
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+            .mobileBtn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            .centerBtn {
+                width: 60px;
+                height: 60px;
+            }
+            #startScreen h1 {
+                font-size: 32px;
+            }
+            #startScreen p {
+                font-size: 16px;
+            }
+        }
+        @media (max-height: 700px) {
+            #mobileControls {
+                bottom: 5px;
+            }
+            .mobileBtn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            .centerBtn {
+                width: 55px;
+                height: 55px;
             }
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="gameUI">
-        <div class="stats">分数: <span id="score">0</span></div>
-        <div class="stats">生命: <span id="lives">5</span></div>
-        <div class="stats">等级: <span id="level">1</span></div>
-    </div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="gameUI">
+            <div class="stats">分数: <span id="score">0</span></div>
+            <div class="stats">生命: <span id="lives">5</span></div>
+            <div class="stats">等级: <span id="level">1</span></div>
+        </div>
+        <button id="pauseBtn">❚❚</button>
 
-    <div id="startScreen">
-        <h1 style="font-size: 48px; margin-bottom: 20px;">🚀 太空射击 🚀</h1>
-        <p style="font-size: 20px; margin: 10px;">使用方向键移动，子弹会自动发射</p>
-        <p style="font-size: 20px; margin: 10px;">蓝色飞船是敌人，棕色石头是陨石</p>
-        <p style="font-size: 20px; margin: 10px;">躲避陨石，消灭敌人！</p>
-        <button id="startButton">开始游戏</button>
-    </div>
+        <div id="startScreen">
+            <h1 style="font-size: 48px; margin-bottom: 20px;">🚀 太空射击 🚀</h1>
+            <p style="font-size: 20px; margin: 10px;">使用方向键或触摸控制移动，子弹会自动发射</p>
+            <p style="font-size: 20px; margin: 10px;">蓝色飞船是敌人，棕色石头是陨石</p>
+            <p style="font-size: 20px; margin: 10px;">躲避陨石，消灭敌人！</p>
+            <button id="startButton">开始游戏</button>
+        </div>
 
-    <div id="mobileControls">
-        <div class="mobileBtn" id="leftBtn">←</div>
-        <div class="mobileBtn" id="rightBtn">→</div>
+        <div id="mobileControls">
+            <div class="controlGroup">
+                <div class="mobileBtn" id="upBtn">↑</div>
+                <div style="display: flex;">
+                    <div class="mobileBtn" id="leftBtn">←</div>
+                    <div class="mobileBtn centerBtn" id="fireBtn">🔥</div>
+                    <div class="mobileBtn" id="rightBtn">→</div>
+                </div>
+                <div class="mobileBtn" id="downBtn">↓</div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -128,10 +219,20 @@
         const levelElement = document.getElementById('level');
         const startScreen = document.getElementById('startScreen');
         const startButton = document.getElementById('startButton');
+        const pauseBtn = document.getElementById('pauseBtn');
 
-        // 设置画布大小
-        canvas.width = 800;
-        canvas.height = 600;
+        // 设置画布大小 - 根据窗口调整
+        function setupCanvas() {
+            const maxWidth = Math.min(800, window.innerWidth - 20);
+            const maxHeight = Math.min(600, window.innerHeight - 150);
+            
+            canvas.width = maxWidth;
+            canvas.height = maxHeight;
+            
+            // 调整玩家位置
+            player.x = canvas.width / 2;
+            player.y = canvas.height - 80;
+        }
 
         // 图片资源
         const images = {
@@ -149,6 +250,7 @@
 
         // 游戏状态
         let gameRunning = false;
+        let gamePaused = false;
         let score = 0;
         let lives = 5;
         let level = 1;
@@ -166,6 +268,8 @@
             speed: 8,
             isMovingLeft: false,
             isMovingRight: false,
+            isMovingUp: false,
+            isMovingDown: false,
             shootDelay: 200
         };
 
@@ -197,10 +301,13 @@
         function initGame() {
             if (imagesLoaded < totalImages) return;
 
+            setupCanvas();
+            
             score = 0;
             lives = 5;
             level = 1;
             gameOver = false;
+            gamePaused = false;
             bullets = [];
             enemies = [];
             meteors = [];
@@ -221,7 +328,7 @@
 
         // 游戏主循环
         function gameLoop(timestamp) {
-            if (!gameRunning) return;
+            if (!gameRunning || gamePaused) return;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -277,6 +384,12 @@
             }
             if (player.isMovingRight && player.x < canvas.width - player.width / 2) {
                 player.x += player.speed;
+            }
+            if (player.isMovingUp && player.y > player.height / 2) {
+                player.y -= player.speed;
+            }
+            if (player.isMovingDown && player.y < canvas.height - player.height / 2) {
+                player.y += player.speed;
             }
         }
 
@@ -540,44 +653,105 @@
             startButton.textContent = '再玩一次';
         }
 
+        // 暂停游戏
+        function togglePause() {
+            gamePaused = !gamePaused;
+            pauseBtn.textContent = gamePaused ? '▶' : '❚❚';
+        }
+
         // 事件监听
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') player.isMovingLeft = true;
             if (e.key === 'ArrowRight') player.isMovingRight = true;
+            if (e.key === 'ArrowUp') player.isMovingUp = true;
+            if (e.key === 'ArrowDown') player.isMovingDown = true;
+            if (e.key === ' ') shoot();
+            if (e.key === 'p' || e.key === 'P') togglePause();
         });
 
         window.addEventListener('keyup', (e) => {
             if (e.key === 'ArrowLeft') player.isMovingLeft = false;
             if (e.key === 'ArrowRight') player.isMovingRight = false;
+            if (e.key === 'ArrowUp') player.isMovingUp = false;
+            if (e.key === 'ArrowDown') player.isMovingDown = false;
         });
 
         // 触摸控制
-        document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            player.isMovingLeft = true;
-        });
+        function setupTouchControls() {
+            const leftBtn = document.getElementById('leftBtn');
+            const rightBtn = document.getElementById('rightBtn');
+            const upBtn = document.getElementById('upBtn');
+            const downBtn = document.getElementById('downBtn');
+            const fireBtn = document.getElementById('fireBtn');
+            
+            // 左按钮
+            leftBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                player.isMovingLeft = true;
+            });
+            leftBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                player.isMovingLeft = false;
+            });
+            
+            // 右按钮
+            rightBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                player.isMovingRight = true;
+            });
+            rightBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                player.isMovingRight = false;
+            });
+            
+            // 上按钮
+            upBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                player.isMovingUp = true;
+            });
+            upBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                player.isMovingUp = false;
+            });
+            
+            // 下按钮
+            downBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                player.isMovingDown = true;
+            });
+            downBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                player.isMovingDown = false;
+            });
+            
+            // 射击按钮
+            fireBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                shoot();
+            });
+        }
 
-        document.getElementById('leftBtn').addEventListener('touchend', (e) => {
-            e.preventDefault();
-            player.isMovingLeft = false;
-        });
-
-        document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            player.isMovingRight = true;
-        });
-
-        document.getElementById('rightBtn').addEventListener('touchend', (e) => {
-            e.preventDefault();
-            player.isMovingRight = false;
-        });
+        // 暂停按钮
+        pauseBtn.addEventListener('click', togglePause);
 
         // 开始游戏按钮
         startButton.addEventListener('click', initGame);
 
-        // 初始禁用按钮直到图片加载完成
-        startButton.disabled = true;
-        startButton.textContent = "图片加载中...";
+        // 窗口调整大小时重新设置画布
+        window.addEventListener('resize', setupCanvas);
+
+        // 初始设置
+        function initialize() {
+            setupCanvas();
+            setupTouchControls();
+            
+            // 初始禁用按钮直到图片加载完成
+            startButton.disabled = true;
+            startButton.textContent = "图片加载中...";
+        }
+
+        // 初始化游戏
+        initialize();
     </script>
 </body>
 </html>
