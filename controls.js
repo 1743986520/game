@@ -80,14 +80,14 @@ function updateJoystick(x, y) {
     
     joystickHandle.style.transform = `translate(${handleX}px, ${handleY}px)`;
     
-    // 更新玩家移动方向
+    // 更新玩家移动方向 - 调整灵敏度阈值从0.3改为0.5
     const normalizedX = (x - joystickCenterX) / joystickRadius;
     const normalizedY = (y - joystickCenterY) / joystickRadius;
     
-    player.isMovingLeft = normalizedX < -0.3;
-    player.isMovingRight = normalizedX > 0.3;
-    player.isMovingUp = normalizedY < -0.3;
-    player.isMovingDown = normalizedY > 0.3;
+    player.isMovingLeft = normalizedX < -0.5;
+    player.isMovingRight = normalizedX > 0.5;
+    player.isMovingUp = normalizedY < -0.5;
+    player.isMovingDown = normalizedY > 0.5;
 }
 
 // 重置摇杆位置
