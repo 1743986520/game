@@ -40,8 +40,9 @@ function useASkill() {
     let target = null;
     
     // 检查所有敌人类型
-    for (const enemy of [...enemies, ...enemyShips, ...bosses]) {
-        if (enemy.health > highestHealth) {
+    const allEnemies = [...enemies, ...enemyShips, ...bosses];
+    for (const enemy of allEnemies) {
+        if (enemy && enemy.health > highestHealth) {
             highestHealth = enemy.health;
             target = enemy;
         }
