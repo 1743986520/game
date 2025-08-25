@@ -8,6 +8,8 @@ updateEnemyBullets = function() {
     
     // 更新Boss发射的有角度子弹
     for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        if (!enemyBullets[i]) continue;
+        
         if (enemyBullets[i].angle) {
             enemyBullets[i].x += enemyBullets[i].vx;
             enemyBullets[i].y += enemyBullets[i].vy;
@@ -29,6 +31,8 @@ checkCollisions = function() {
     
     // Boss子弹与玩家碰撞
     for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        if (!enemyBullets[i]) continue;
+        
         if (enemyBullets[i].angle && checkCollision(enemyBullets[i], player)) {
             if (shield > 0) {
                 shield -= enemyBullets[i].damage;
