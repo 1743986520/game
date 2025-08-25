@@ -84,10 +84,10 @@ function updateJoystick(x, y) {
     const normalizedX = (x - joystickCenterX) / joystickRadius;
     const normalizedY = (y - joystickCenterY) / joystickRadius;
     
-    player.isMovingLeft = normalizedX < -3.0;
-    player.isMovingRight = normalizedX > 3.0;
-    player.isMovingUp = normalizedY < -3.0;
-    player.isMovingDown = normalizedY > 3.0;
+    player.isMovingLeft = normalizedX < -1.0;
+    player.isMovingRight = normalizedX > 1.0;
+    player.isMovingUp = normalizedY < -1.0;
+    player.isMovingDown = normalizedY > 1.0;
 }
 
 // 重置摇杆位置
