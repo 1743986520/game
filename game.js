@@ -84,6 +84,11 @@ let explosions = [];
 let bombs = [];
 let bosses = [];
 
+// 帧率控制变量
+let lastTime = 0;
+const fps = 60;
+const frameInterval = 1000 / fps;
+
 // 检查所有图片是否加载完成
 function checkAllImagesLoaded() {
     imagesLoaded++;
@@ -143,12 +148,21 @@ function initGame() {
         window.resetSkillCooldowns();
     }
 
+    lastTime = performance.now();
     requestAnimationFrame(gameLoop);
 }
 
 // 游戏主循环
 function gameLoop(timestamp) {
     if (!gameRunning || gamePaused) return;
+    
+    // 帧率控制
+    const deltaTime = timestamp - lastTime;
+    if (deltaTime < frameInterval) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+    lastTime = timestamp - (deltaTime % frameInterval);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -227,6 +241,7 @@ function updatePlayer() {
 // 更新子弹位置
 function updateBullets() {
     for (let i = bullets.length - 1; i >= 0; i--) {
+        if (!bullets[i]) continue;
         bullets[i].y -= bullets[i].speed;
         if (bullets[i].y < 0) {
             bullets.splice(i, 1);
@@ -237,6 +252,7 @@ function updateBullets() {
 // 更新敌人子弹位置
 function updateEnemyBullets() {
     for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        if (!enemyBullets[i]) continue;
         enemyBullets[i].y += enemyBullets[i].speed;
         if (enemyBullets[i].y > canvas.height) {
             enemyBullets.splice(i, 1);
@@ -247,6 +263,7 @@ function updateEnemyBullets() {
 // 更新敌人位置
 function updateEnemies() {
     for (let i = enemies.length - 1; i >= 0; i--) {
+        if (!enemies[i]) continue;
         enemies[i].y += enemies[i].speed;
         enemies[i].x += Math.sin(enemies[i].y / 50) * 1;
 
@@ -259,6 +276,7 @@ function updateEnemies() {
 // 更新敌方飞船位置和射击
 function updateEnemyShips(timestamp) {
     for (let i = enemyShips.length - 1; i >= 0; i--) {
+        if (!enemyShips[i]) continue;
         enemyShips[i].y += enemyShips[i].speed;
         enemyShips[i].x += Math.sin(enemyShips[i].y / 50) * 1.5;
 
@@ -277,6 +295,7 @@ function updateEnemyShips(timestamp) {
 // 更新陨石位置
 function updateMeteors() {
     for (let i = meteors.length - 1; i >= 0; i--) {
+        if (!meteors[i]) continue;
         meteors[i].y += meteors[i].speed;
         meteors[i].rotation += meteors[i].rotationSpeed;
 
@@ -289,6 +308,7 @@ function updateMeteors() {
 // 更新爆炸效果
 function updateExplosions() {
     for (let i = explosions.length - 1; i >= 0; i--) {
+        if (!explosions[i]) continue;
         explosions[i].radius += 0.8;
         explosions[i].alpha -= 0.03;
 
@@ -301,6 +321,7 @@ function updateExplosions() {
 // 更新炸弹位置
 function updateBombs() {
     for (let i = bombs.length - 1; i >= 0; i--) {
+        if (!bombs[i]) continue;
         // 炸弹追踪逻辑
         if (bombs[i].target && bombs[i].target.health > 0) {
             // 简单追踪逻辑：向目标移动
@@ -376,6 +397,7 @@ function updateBombs() {
 // 更新Boss位置和射击
 function updateBosses(timestamp) {
     for (let i = bosses.length - 1; i >= 0; i--) {
+        if (!bosses[i]) continue;
         // Boss移动模式
         bosses[i].x += bosses[i].speedX;
         if (bosses[i].x <= 0 || bosses[i].x >= canvas.width - bosses[i].width) {
@@ -389,7 +411,7 @@ function updateBosses(timestamp) {
         }
         
         // 更新Boss血条
-        if (bosses.length > 0) {
+        if (bosses.length > 0 && bosses[0]) {
             const healthPercent = (bosses[0].health / bosses[0].maxHealth) * 100;
             bossHealthFill.style.width = `${healthPercent}%`;
         }
@@ -398,9 +420,15 @@ function updateBosses(timestamp) {
 
 // 检查碰撞
 function checkCollisions() {
+    if (!player) return;
+    
     // 子弹与敌人碰撞
     for (let i = bullets.length - 1; i >= 0; i--) {
+        if (!bullets[i]) continue;
+        
         for (let j = enemies.length - 1; j >= 0; j--) {
+            if (!enemies[j]) continue;
+            
             if (checkCollision(bullets[i], enemies[j])) {
                 enemies[j].health -= bullets[i].damage;
                 
@@ -425,6 +453,8 @@ function checkCollisions() {
         
         // 子弹与敌方飞船碰撞
         for (let j = enemyShips.length - 1; j >= 0; j--) {
+            if (!enemyShips[j]) continue;
+            
             if (checkCollision(bullets[i], enemyShips[j])) {
                 enemyShips[j].health -= bullets[i].damage;
                 
@@ -449,6 +479,8 @@ function checkCollisions() {
         
         // 子弹与陨石碰撞
         for (let j = meteors.length - 1; j >= 0; j--) {
+            if (!meteors[j]) continue;
+            
             if (checkCollision(bullets[i], meteors[j])) {
                 meteors[j].health -= bullets[i].damage;
                 
@@ -473,6 +505,8 @@ function checkCollisions() {
         
         // 子弹与Boss碰撞
         for (let j = bosses.length - 1; j >= 0; j--) {
+            if (!bosses[j]) continue;
+            
             if (checkCollision(bullets[i], bosses[j])) {
                 bosses[j].health -= bullets[i].damage;
                 
@@ -508,6 +542,8 @@ function checkCollisions() {
     
     // 敌人子弹与玩家碰撞
     for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        if (!enemyBullets[i]) continue;
+        
         if (checkCollision(enemyBullets[i], player)) {
             if (shield > 0) {
                 shield -= enemyBullets[i].damage;
@@ -540,6 +576,8 @@ function checkCollisions() {
 
     // 玩家与敌人碰撞
     for (let i = enemies.length - 1; i >= 0; i--) {
+        if (!enemies[i]) continue;
+        
         if (checkLooseCollision(player, enemies[i], 0.6)) {
             if (shield > 0) {
                 shield -= 10;
@@ -582,6 +620,8 @@ function checkCollisions() {
     
     // 玩家与敌方飞船碰撞
     for (let i = enemyShips.length - 1; i >= 0; i--) {
+        if (!enemyShips[i]) continue;
+        
         if (checkLooseCollision(player, enemyShips[i], 0.6)) {
             if (shield > 0) {
                 shield -= 20;
@@ -624,6 +664,8 @@ function checkCollisions() {
 
     // 玩家与陨石碰撞
     for (let i = meteors.length - 1; i >= 0; i--) {
+        if (!meteors[i]) continue;
+        
         if (checkLooseCollision(player, meteors[i], 0.5)) {
             if (shield > 0) {
                 shield -= 10;
@@ -666,6 +708,8 @@ function checkCollisions() {
     
     // 玩家与Boss碰撞 - Boss不可被撞击
     for (let i = bosses.length - 1; i >= 0; i--) {
+        if (!bosses[i]) continue;
+        
         if (checkLooseCollision(player, bosses[i], 0.7)) {
             if (shield > 0) {
                 shield = 0;
@@ -701,6 +745,8 @@ function checkCollisions() {
 
 // 碰撞检测函数
 function checkCollision(obj1, obj2) {
+    if (!obj1 || !obj2) return false;
+    
     return obj1.x < obj2.x + obj2.width &&
            obj1.x + obj1.width > obj2.x &&
            obj1.y < obj2.y + obj2.height &&
@@ -708,6 +754,8 @@ function checkCollision(obj1, obj2) {
 }
 
 function checkLooseCollision(obj1, obj2, factor = 0.7) {
+    if (!obj1 || !obj2) return false;
+    
     const width1 = obj1.width * factor;
     const height1 = obj1.height * factor;
     const width2 = obj2.width * factor;
@@ -865,6 +913,8 @@ function drawPlayer() {
 function drawBullets() {
     ctx.fillStyle = '#ffcc00';
     for (const bullet of bullets) {
+        if (!bullet) continue;
+        
         if (images.bullet.complete) {
             ctx.drawImage(images.bullet, bullet.x, bullet.y, bullet.width, bullet.height);
         } else {
@@ -877,6 +927,8 @@ function drawBullets() {
 function drawEnemyBullets() {
     ctx.fillStyle = '#ff3333';
     for (const bullet of enemyBullets) {
+        if (!bullet) continue;
+        
         if (bullet.angle) {
             // 有角度的子弹（Boss发射的）
             ctx.save();
@@ -898,6 +950,8 @@ function drawEnemyBullets() {
 // 绘制敌人
 function drawEnemies() {
     for (const enemy of enemies) {
+        if (!enemy) continue;
+        
         if (images.enemy.complete) {
             ctx.drawImage(images.enemy, enemy.x, enemy.y, enemy.width, enemy.height);
         } else {
@@ -910,6 +964,8 @@ function drawEnemies() {
 // 绘制敌方飞船
 function drawEnemyShips() {
     for (const enemy of enemyShips) {
+        if (!enemy) continue;
+        
         if (images.enemyShip.complete) {
             ctx.drawImage(images.enemyShip, enemy.x, enemy.y, enemy.width, enemy.height);
         } else {
@@ -927,6 +983,8 @@ function drawEnemyShips() {
 // 绘制陨石
 function drawMeteors() {
     for (const meteor of meteors) {
+        if (!meteor) continue;
+        
         ctx.save();
         ctx.translate(meteor.x + meteor.width/2, meteor.y + meteor.height/2);
         ctx.rotate(meteor.rotation);
@@ -947,6 +1005,8 @@ function drawMeteors() {
 // 绘制爆炸效果
 function drawExplosions() {
     for (const explosion of explosions) {
+        if (!explosion) continue;
+        
         ctx.globalAlpha = explosion.alpha;
         ctx.fillStyle = `hsl(${Math.random() * 30 + 20}, 100%, 60%)`;
         ctx.beginPath();
@@ -959,6 +1019,8 @@ function drawExplosions() {
 // 绘制炸弹
 function drawBombs() {
     for (const bomb of bombs) {
+        if (!bomb) continue;
+        
         if (images.bomb.complete) {
             ctx.drawImage(images.bomb, bomb.x - bomb.width/2, bomb.y - bomb.height/2, bomb.width, bomb.height);
         } else {
@@ -973,6 +1035,8 @@ function drawBombs() {
 // 绘制Boss
 function drawBosses() {
     for (const boss of bosses) {
+        if (!boss) continue;
+        
         if (images.boss.complete) {
             ctx.drawImage(images.boss, boss.x, boss.y, boss.width, boss.height);
         } else {
@@ -1028,6 +1092,7 @@ canvas.addEventListener('click', restartGame);
 pauseBtn.addEventListener('click', () => {
     gamePaused = !gamePaused;
     if (!gamePaused && gameRunning) {
+        lastTime = performance.now();
         requestAnimationFrame(gameLoop);
     }
 });
